@@ -1,0 +1,60 @@
+  
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Times New Roman", Times, serif;
+  }
+  
+.container{
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+}
+ .img_container img{
+    width: 400px;
+    height: 400px;
+  }
+  .container .controls button, .container .controls select {
+    padding: 0.8rem;
+    width: 5rem;
+    margin: 2px 4px;
+    border: none;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 50px;
+    color: white;
+    transition: 0.5s;
+    font-size: 1.3rem;
+  }
+  .container .controls select {
+    font-size: 1rem;
+    padding: 0.5rem;
+  }
+  
+  @media (max-width: 325px) {
+    .container .img_container img {
+      width: 300px;
+      height: 300px;
+    }
+    .container .controls button, .container .controls select {
+      font-size: 0.8rem;
+    }
+  }
+
+  .fan {
+    animation: rotate linear infinite;
+    animation-duration: 2s;
+  }
+  
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  .green {
+    color: rgb(82, 255, 82) !important;
+  }
