@@ -1,57 +1,99 @@
-const on =document.getElementById('on')
-const off = document.getElementById('off')
-const img = document.getElementById('img')
-const speed = document.getElementById('speed')
-const audio = document.querySelector('audio')
-
-let is_on = false
-audio.volume = .2
-
-function turn_on_fan(){
-    is_on = true
-    img.classList.add('fan')
-    img.classList.remove('fan-paused')
-    on.classList.add('green')
-    audio.play()
-}
-
-function turn_off_fan(){
-    is_on = false
-    on.classList.remove('green')
-    img.classList.replace('fan', 'fan-paused')
-    audio.pause()
-    audio.currentTime = 0
-}
-
-function speed_fan(){
-    const user_value = parseInt(speed.value)
-    const speedLevel = {
-        1: '.7s',
-        2: '.5s',
-        3: '.1s'
+class Container extends Phaser.Scene{
+    constructor(){
+        super("Container");
     }
-    img.style.animationDuration = speedLevel[user_value] || '.7s'
-    const volumeLevel = {
-        1: .2,
-        2: .6,
-        3: 1
+    preload(){
+        this.load.image("fan", "./images/fan.png");
+        this.load.svg("on", "./images/on.svg");
+        this.load.svg("off", "./images/off.svg");
+        this.load.audio("audio", "./audio/fan-sound.mp3");
     }
-    audio.volume = volumeLevel[user_value] || .2
-
-}
-
-function is_on_fan(){
-    if(is_on){
-        if(Math.floor(audio.currentTime) === 9){
-            audio.currentTime = 2
-            console.log('reset time')
+    getFontSize(){
+        return Math.max(24, Math.min(window.innerWidth, window.innerHeight) * 0.08);
+    }
+    getScale(baseSize){
+        return (Math.min(window.innerWidth, window.innerHeight) * 0.2) / baseSize ;
+    }
+    adjustForSmallScreens(img, scale){
+        const MOBILE_THRESHOLD = 700;
+        if (window.innerWidth < MOBILE_THRESHOLD && window.innerHeight < MOBILE_THRESHOLD) {
+            img.setScale(scale);
         }
-    }  
+    }
+ 
+    create(){
+        const centerX = this.cameras.main.centerX;
+        const centerY = this.cameras.main.centerY;
+        const configFan = {
+            x: centerX,
+            y: centerY - 50,
+            image: "fan",
+            baseSize: 240,
+        }
+        this.audio = this.sound.add("audio", { loop: true, volume: 0 })
+        this.fan = this.physics.add.image(configFan.x, configFan.y, configFan.image)
+        .setScale(this.getScale(configFan.baseSize))
+        .setAngularAcceleration(0)
+        .setAngularDrag(20);
+        this.adjustForSmallScreens(this.fan, 0.38);
+        const configBtn = {
+            x: centerX - 40,
+            y: centerY + 250,
+        }
+        
+        let onBtn = this.add.image(configBtn.x, configBtn.y, "on").setScale(this.getScale(90)).setInteractive()
+        this.adjustForSmallScreens(onBtn, 1.5)
+        let offBtn = this.add.image(configBtn.x + 80, configBtn.y, "off").setScale(this.getScale(90))
+        this.adjustForSmallScreens(offBtn, 1.5)
+
+        onBtn.on("pointerdown", ()=>{
+            this.fan.setAngularAcceleration(50);
+            this.audio.play()
+            this.audio.setVolume(0.2);
+            this.time.delayedCall(10000, ()=>{
+                this.audio.setVolume(0.3);
+            })
+            this.audio.setDetune(-1500);
+            onBtn.disableInteractive();
+            offBtn.setInteractive();
+        })
+        offBtn.on("pointerdown", ()=>{
+            this.fan.setAngularAcceleration(0);
+            this.audio.setDetune(-1500);
+            this.time.delayedCall(3000, ()=>{
+                this.audio.setVolume(0.2);
+                this.time.delayedCall(1000, ()=>{
+                    this.audio.setVolume(0.1);
+                    this.audio.stop()
+                })
+            })
+            this.audio.setDetune(-1500);
+            offBtn.disableInteractive();
+            onBtn.setInteractive();
+        })
+    }
+
+
 }
 
-setInterval(is_on_fan, 2000)
+const config = {
+    type: Phaser.AUTO,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    backgroundColor: "#c0c0c0",
+    scene: [Container],
+    physics: {
+        default: 'arcade',
+        arcade: { debug: false,}
 
+    },
+    scale: {
+        mode: Phaser.Scale.RESIZE,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        zoom: 1,  
+    },
+    autoRound: false
+   
+};
 
-on.addEventListener('click', turn_on_fan)
-off.addEventListener('click', turn_off_fan)
-speed.addEventListener('change', speed_fan)
+const game = new Phaser.Game(config);
