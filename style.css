@@ -16,7 +16,7 @@
     width: 400px;
     height: 400px;
   }
-  .container .controls button, .container .controls select {
+  /* .container .controls button, .container .controls select {
     padding: 0.8rem;
     width: 5rem;
     margin: 2px 4px;
@@ -26,12 +26,21 @@
     color: white;
     transition: 0.5s;
     font-size: 1.3rem;
-  }
-  .container .controls select {
+  } */
+  /* .container .controls select {
     font-size: 1rem;
     padding: 0.5rem;
+  } */
+  .btn{
+    width: 80px;
+    height: 40px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 16px;
+    text-align: center;
+    font-size: 16px;
   }
-  
   @media (max-width: 325px) {
     .container .img_container img {
       width: 300px;
